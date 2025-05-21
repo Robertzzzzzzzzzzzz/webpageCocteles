@@ -1,150 +1,523 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Factica 1 - Despacho de Pedidos</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome para íconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- CSS personalizado -->
-    <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Despacho de Pedidos - Registro y Pedido</title>
+  <link rel="stylesheet" href="estilos.css" />
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      min-height: 100vh;
+      background: #f0f8ff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .main-center-container {
+      min-height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 32px;
+      padding: 40px 0;
+    }
+    #registroSection, #pedidoSection {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(44, 62, 80, 0.10), 0 1.5px 6px rgba(44,62,80,0.06);
+      padding: 32px 32px 24px 32px;
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto 18px auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1, h2 {
+      color: #2e86ab;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+    label {
+      font-weight: 600;
+      color: #1b4f72;
+      margin-top: 14px;
+      margin-bottom: 4px;
+      align-self: flex-start;
+    }
+    input, select {
+      width: 100%;
+      padding: 13px 12px;
+      margin-bottom: 8px;
+      border-radius: 7px;
+      border: 1.5px solid #b3c6d7;
+      font-size: 1.08em;
+      background: #f8fafc;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus {
+      border-color: #2e86ab;
+      outline: none;
+    }
+    button, #facturaImprimir {
+      width: 100%;
+      margin-top: 14px;
+      padding: 13px;
+      background: #2e86ab;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-size: 1.13em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      box-shadow: 0 2px 10px rgba(44,62,80,0.07);
+    }
+    button:hover, #facturaImprimir:hover {
+      background: #186a8d;
+    }
+    .cedula-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 10px;
+      width: 100%;
+    }
+    .cedula-prefix {
+      font-weight: bold;
+      font-size: 1.1em;
+      background: #eee;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 5px 0 0 5px;
+      user-select: none;
+    }
+    #cedulaCliente {
+      flex: 1;
+      border-radius: 0 5px 5px 0;
+      border-left: none;
+      padding-left: 10px;
+    }
+    #detallePedidoContainer {
+      margin-top: 15px;
+      width: 100%;
+    }
+    #itemsSeleccionados {
+      background: #f1f8fb;
+      border-radius: 8px;
+      padding: 14px 12px;
+      margin-top: 14px;
+      width: 100%;
+    }
+    #itemsSeleccionados h3 {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+      color: #333;
+    }
+    #itemsSeleccionados ul {
+      list-style: none;
+      padding: 0;
+      max-height: 150px;
+      overflow-y: auto;
+      width: 100%;
+    }
+    #itemsSeleccionados li {
+      padding: 5px 0;
+      border-bottom: 1px dotted #ccc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+    #itemsSeleccionados li:last-child {
+      border-bottom: none;
+    }
+    #itemsSeleccionados li button {
+      background: #e74c3c;
+      border: none;
+      color: white;
+      padding: 3px 7px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9em;
+    }
+    #precioAcumulado {
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 1.1em;
+      color: #2e86ab;
+      width: 100%;
+      text-align: right;
+    }
+    .pedido {
+      background: #e7f3fa;
+      border-radius: 14px;
+      padding: 28px 22px;
+      box-shadow: 0 4px 18px rgba(44,62,80,0.08);
+      margin: 0 auto 18px auto;
+      max-width: 480px;
+      width: 100%;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    /* Modal factura */
+    #facturaModal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(44,62,80,0.23);
+      justify-content: center;
+      align-items: center;
+    }
+    #facturaModalContent {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(44,62,80,0.16);
+      padding: 36px 28px 28px 28px;
+      width: 95%;
+      max-width: 420px;
+      margin: auto;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #facturaCerrar {
+      position: absolute;
+      top: 18px;
+      right: 22px;
+      font-size: 30px;
+      color: #aaa;
+      cursor: pointer;
+    }
+    #facturaCerrar:hover {
+      color: #2e86ab;
+    }
+    @media (max-width: 600px) {
+      #registroSection, #pedidoSection, .pedido, #facturaModalContent {
+        padding: 18px 6vw;
+        max-width: 98vw;
+      }
+      .main-center-container {
+        gap: 18px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="#">Factica 1</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#"><i class="fas fa-home"></i> Inicio</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+  <div class="main-center-container">
+    <!-- Formulario Registro Cliente -->
+    <div id="registroSection">
+      <h1>Registro de Cliente</h1>
+      <form id="registroForm" autocomplete="off">
+        <label for="nombreCliente">Nombre completo:</label>
+        <input type="text" id="nombreCliente" required placeholder="Ej: Juan Pérez" title="Ingrese nombre y apellido, ej: Juan Pérez" />
 
-    <!-- Contenido Principal -->
-    <div class="container mt-4" id="mainContent">
-        <!-- Filtros -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-search"></i></span>
-                    <input type="text" class="form-control" placeholder="Buscar pedido..." id="searchInput">
-                </div>
-            </div>
-            <div class="col-md-6">
-                <select class="form-select" id="filterEstado">
-                    <option value="todos">Todos los estados</option>
-                    <option value="pendiente">Pendientes</option>
-                    <option value="preparacion">En preparación</option>
-                    <option value="listo">Listo para servir</option>
-                    <option value="entregado">Entregado</option>
-                </select>
-            </div>
+        <label for="cedulaCliente">Cédula de identidad:</label>
+        <div class="cedula-wrapper">
+          <div class="cedula-prefix">V-</div>
+          <input type="text" id="cedulaCliente" required placeholder="Ej: 31707479" pattern="^\d{7,8}$" title="Ingrese 7 u 8 dígitos numéricos" />
         </div>
 
-        <!-- Lista de Pedidos -->
-        <div class="row" id="pedidosContainer">
-            <!-- Los pedidos se cargarán aquí dinámicamente -->
-        </div>
+        <label for="celularCliente">Número celular:</label>
+        <input type="tel" id="celularCliente" required placeholder="Ej: +584245584016 o 04245584016" pattern="^(\+58\d{10}|0\d{10})$" title="Ejemplo: +584245584016 o 04245584016" />
+
+        <button type="button" id="btnCompletarRegistro">Completar registro</button>
+      </form>
     </div>
 
-    <!-- Modal de Factura -->
-    <div class="modal fade" id="facturaModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Factura del Pedido</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="facturaContent">
-                    <!-- Contenido de la factura se cargará aquí -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-primary" id="imprimirFacturaBtn"><i class="fas fa-print"></i> Imprimir</button>
-                </div>
-            </div>
-        </div>
+    <!-- Sección Pedido (oculta hasta registro válido) -->
+    <div id="pedidoSection" style="display:none;">
+      <h2>Pedido</h2>
+      <label for="tipoPedido">Tipo de pedido:</label>
+      <select id="tipoPedido" required>
+        <option value="">--Seleccione--</option>
+        <option value="Cóctel">Cóctel</option>
+        <option value="Comida">Comida</option>
+      </select>
+
+      <div id="detallePedidoContainer" style="display:none;">
+        <label for="detallePedido">Detalle del pedido:</label>
+        <select id="detallePedido" required></select>
+        <button type="button" id="btnAgregarItem" style="margin-top:10px;">Agregar al pedido</button>
+      </div>
+
+      <div id="itemsSeleccionados" style="display:none;">
+        <h3>Items seleccionados:</h3>
+        <ul id="listaItems"></ul>
+      </div>
+      <div id="precioAcumulado" style="display:none;">Precio total: $0</div>
+
+      <button id="btnFinalizarPedido" style="margin-top:20px;">Registrar y Mostrar Factura</button>
     </div>
 
-    <!-- Login Form (inicialmente visible) -->
-    <div class="container login-container" id="loginContainer">
-        <div class="card">
-            <div class="card-header text-center">
-                <h4>Iniciar Sesión</h4>
-            </div>
-            <div class="card-body">
-                <form id="loginForm">
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Usuario</label>
-                        <input type="text" class="form-control" id="username" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" id="password" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100 mb-3">Ingresar</button>
-                    <div class="text-center">
-                        <p>¿No tienes cuenta? <a href="#" id="crearCuentaBtn">Regístrate aquí</a></p>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    <!-- Facturas debajo del pedido -->
+    <div id="despachoPedidos" style="width:100%; max-width:480px; display:flex; flex-direction:column; align-items:center;"></div>
+  </div>
 
-    <!-- Modal de Registro -->
-    <div class="modal fade" id="registroModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Crear Cuenta</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="registroForm">
-                        <div class="mb-3">
-                            <label for="regNombre" class="form-label">Nombre Completo</label>
-                            <input type="text" class="form-control" id="regNombre" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="regEmail" class="form-label">Correo Electrónico</label>
-                            <input type="email" class="form-control" id="regEmail" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="regUsuario" class="form-label">Nombre de Usuario</label>
-                            <input type="text" class="form-control" id="regUsuario" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="regPassword" class="form-label">Contraseña</label>
-                            <input type="password" class="form-control" id="regPassword" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="regConfirmPassword" class="form-label">Confirmar Contraseña</label>
-                            <input type="password" class="form-control" id="regConfirmPassword" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Registrarse</button>
-                    </form>
-                </div>
-            </div>
-        </div>
+  <!-- Modal factura -->
+  <div id="facturaModal">
+    <div id="facturaModalContent">
+      <span id="facturaCerrar" title="Cerrar">&times;</span>
+      <h2>Factura</h2>
+      <div id="facturaDetalle"></div>
+      <button id="facturaImprimir" onclick="window.print()">Imprimir</button>
     </div>
+  </div>
 
-    <!-- Bootstrap JS y dependencias -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Scripts personalizados -->
-    <script src="js/data.js"></script>
-    <script src="js/functions.js"></script>
-    <script src="js/main.js"></script>
+<script>
+  // ... Tu JS permanece igual ...
+  // Solo asegúrate que el JS inserte los pedidos en #despachoPedidos como ya lo hace.
+</script>
+</body>
+</html>
+
+
+<script>
+  // Elementos DOM
+  const registroSection = document.getElementById('registroSection');
+  const pedidoSection = document.getElementById('pedidoSection');
+  const btnCompletarRegistro = document.getElementById('btnCompletarRegistro');
+  const nombreClienteInput = document.getElementById('nombreCliente');
+  const cedulaClienteInput = document.getElementById('cedulaCliente');
+  const celularClienteInput = document.getElementById('celularCliente');
+
+  const tipoPedidoSelect = document.getElementById('tipoPedido');
+  const detallePedidoContainer = document.getElementById('detallePedidoContainer');
+  const detallePedidoSelect = document.getElementById('detallePedido');
+  const btnAgregarItem = document.getElementById('btnAgregarItem');
+  const itemsSeleccionadosDiv = document.getElementById('itemsSeleccionados');
+  const listaItemsUL = document.getElementById('listaItems');
+  const precioAcumuladoDiv = document.getElementById('precioAcumulado');
+  const btnFinalizarPedido = document.getElementById('btnFinalizarPedido');
+
+  const despachoPedidos = document.getElementById('despachoPedidos');
+  const facturaModal = document.getElementById('facturaModal');
+  const facturaCerrar = document.getElementById('facturaCerrar');
+  const facturaDetalle = document.getElementById('facturaDetalle');
+
+  // Productos con precios individuales
+  const productos = {
+    'Comida': {
+      'Pizza': 350,
+      'Hamburguesa': 280,
+      'Sushi': 400,
+      'Ensalada': 220,
+      'Pasta': 300
+    },
+    'Cóctel': {
+      'Margarita': 180,
+      'Mojito': 160,
+      'Daiquiri': 170,
+      'Cosmopolitan': 190,
+      'Piña Colada': 200
+    }
+  };
+
+  // Opciones para selects
+  const opcionesComida = Object.keys(productos.Comida);
+  const opcionesCoctel = Object.keys(productos['Cóctel']);
+
+  // Lista para almacenar los items seleccionados
+  let itemsSeleccionados = [];
+
+  // Validar nombre completo: debe ser al menos dos palabras con letras y espacios
+  function validarNombre(nombre) {
+    if (!nombre) return false;
+    return /^([A-Za-zÁÉÍÓÚáéíóúÑñÜü]+)\s+([A-Za-zÁÉÍÓÚáéíóúÑñÜü]+)(\s*[A-Za-zÁÉÍÓÚáéíóúÑñÜü]*)?$/.test(nombre.trim());
+  }
+
+  function validarCedula(cedula) {
+    return /^\d{7,8}$/.test(cedula.trim());
+  }
+
+  function validarCelular(celular) {
+    return /^(\+58\d{10}|0\d{10})$/.test(celular.trim());
+  }
+
+  btnCompletarRegistro.addEventListener('click', () => {
+    const nombre = nombreClienteInput.value.trim();
+    const cedula = cedulaClienteInput.value.trim();
+    const celular = celularClienteInput.value.trim();
+
+    if (!validarNombre(nombre)) {
+      alert('Por favor, ingrese un nombre y apellido válidos (Ej: Juan Pérez, Ana Gómez López).');
+      nombreClienteInput.focus();
+      return;
+    }
+    if (!validarCedula(cedula)) {
+      alert('Por favor, ingrese una cédula válida (7 u 8 dígitos numéricos).');
+      cedulaClienteInput.focus();
+      return;
+    }
+    if (!validarCelular(celular)) {
+      alert('Por favor, ingrese un número celular válido (Ej: +584245584016 o 04245584016).');
+      celularClienteInput.focus();
+      return;
+    }
+
+    registroSection.style.display = 'none';
+    pedidoSection.style.display = 'block';
+  });
+
+  tipoPedidoSelect.addEventListener('change', function () {
+    const tipoPedido = tipoPedidoSelect.value;
+    detallePedidoSelect.innerHTML = '';
+
+    if (tipoPedido === 'Comida') {
+      opcionesComida.forEach(opcion => {
+        const option = document.createElement('option');
+        option.value = opcion;
+        option.text = `${opcion} - $${productos.Comida[opcion]}`;
+        detallePedidoSelect.add(option);
+      });
+      detallePedidoContainer.style.display = 'block';
+    } else if (tipoPedido === 'Cóctel') {
+      opcionesCoctel.forEach(opcion => {
+        const option = document.createElement('option');
+        option.value = opcion;
+        option.text = `${opcion} - $${productos['Cóctel'][opcion]}`;
+        detallePedidoSelect.add(option);
+      });
+      detallePedidoContainer.style.display = 'block';
+    } else {
+      detallePedidoContainer.style.display = 'none';
+    }
+  });
+
+  btnAgregarItem.addEventListener('click', function () {
+    const tipo = tipoPedidoSelect.value;
+    const detalle = detallePedidoSelect.value;
+    if (!tipo || !detalle) {
+      alert('Seleccione tipo y detalle del pedido antes de agregar.');
+      return;
+    }
+    const precioUnitario = productos[tipo][detalle];
+    itemsSeleccionados.push({ tipo, detalle, precio: precioUnitario });
+    actualizarListaItems();
+  });
+
+  function actualizarListaItems() {
+    listaItemsUL.innerHTML = '';
+    let total = 0;
+    itemsSeleccionados.forEach((item, index) => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        ${item.detalle} (${item.tipo}) - $${item.precio}
+        <button type="button" onclick="eliminarItem(${index})" title="Eliminar">x</button>
+      `;
+      listaItemsUL.appendChild(li);
+      total += item.precio;
+    });
+    itemsSeleccionadosDiv.style.display = itemsSeleccionados.length ? 'block' : 'none';
+    precioAcumuladoDiv.style.display = itemsSeleccionados.length ? 'block' : 'none';
+    precioAcumuladoDiv.textContent = `Precio total: $${total}`;
+  }
+
+  window.eliminarItem = function(index) {
+    itemsSeleccionados.splice(index, 1);
+    actualizarListaItems();
+  };
+
+ btnFinalizarPedido.addEventListener('click', () => {
+  if (itemsSeleccionados.length === 0) {
+    alert('Por favor, agregue al menos un item al pedido.');
+    return;
+  }
+
+  const nombre = nombreClienteInput.value.trim();
+  const cedula = cedulaClienteInput.value.trim();
+  const celular = celularClienteInput.value.trim();
+  const horaSalida = calcularHoraSalida();
+
+  let totalFactura = 0;
+  let detallesPedidoHTML = '';
+  let hayComida = false;
+  let hayCoctel = false;
+
+  itemsSeleccionados.forEach(item => {
+    detallesPedidoHTML += `<strong>Item:</strong> ${item.detalle} (${item.tipo}) - $${item.precio}<br />`;
+    totalFactura += item.precio;
+    if (item.tipo === "Comida") hayComida = true;
+    if (item.tipo === "Cóctel") hayCoctel = true;
+  });
+
+  // Determinar el resumen del pedido
+  let resumenTipo = '';
+  if (hayComida && hayCoctel) {
+    resumenTipo = 'Cóctel y comida';
+  } else if (hayComida) {
+    resumenTipo = 'Solo comida';
+  } else if (hayCoctel) {
+    resumenTipo = 'Solo cóctel';
+  }
+
+  const facturaHTML = `
+    <strong>Cliente:</strong> ${nombre} <br />
+    <strong>Cédula:</strong> V-${cedula} <br />
+    <strong>Celular:</strong> ${celular} <br />
+    <strong>Tipo de pedido:</strong> ${resumenTipo} <br />
+    ${detallesPedidoHTML}
+    <strong>Hora estimada de salida:</strong> ${horaSalida} <br />
+    <strong>Total a pagar:</strong> $${totalFactura}
+  `;
+
+  facturaDetalle.innerHTML = facturaHTML;
+  facturaModal.style.display = 'block';
+
+  // Mostrar pedido en lista (opcional)
+  const pedidoDiv = document.createElement('div');
+  pedidoDiv.classList.add('pedido');
+  pedidoDiv.innerHTML = `
+    <strong>Cliente:</strong> ${nombre} <br />
+    <strong>Tipo de pedido:</strong> ${resumenTipo} <br />
+    <strong>Pedido:</strong><br />${detallesPedidoHTML}
+    <strong>Hora estimada de salida:</strong> ${horaSalida} <br />
+    <button type="button" onclick="mostrarFacturaModal()">Ver Factura</button>
+  `;
+  despachoPedidos.prepend(pedidoDiv);
+
+  // Resetear pedido para nueva orden
+  itemsSeleccionados = [];
+  actualizarListaItems();
+  detallePedidoContainer.style.display = 'none';
+  tipoPedidoSelect.value = '';
+  precioAcumuladoDiv.style.display = 'none';
+});
+
+  function calcularHoraSalida() {
+    const ahora = new Date();
+    ahora.setMinutes(ahora.getMinutes() + 30);
+    return ahora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function mostrarFacturaModal() {
+    facturaModal.style.display = 'block';
+  }
+
+  facturaCerrar.onclick = () => {
+    facturaModal.style.display = 'none';
+  };
+
+  window.onclick = (event) => {
+    if (event.target === facturaModal) {
+      facturaModal.style.display = 'none';
+    }
+  };
+</script>
+
 </body>
 </html>
